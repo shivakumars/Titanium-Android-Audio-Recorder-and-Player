@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 0.1
+apiversion: 2
+description: My module
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) 2012 by Your Company
+
+
+# these should not be edited
+name: audiorecorder
+moduleid: in.shivakumars.audiorecorder
+guid: d3d1d9fe-3741-4703-bfef-18d462b9be7f
+platform: android
+minsdk: 2.1.2.GA
