@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Titanium-android-audio-recorder-and-player by shivakumars</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Titanium-android-audio-recorder-and-player</h1>
+        <p>Module for Audio recording and playing</p>
+
+        <p class="view"><a href="https://github.com/shivakumars/Titanium-Android-Audio-Recorder-and-Player">View the Project on GitHub <small>shivakumars/Titanium-Android-Audio-Recorder-and-Player</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/shivakumars/Titanium-Android-Audio-Recorder-and-Player/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/shivakumars/Titanium-Android-Audio-Recorder-and-Player/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/shivakumars/Titanium-Android-Audio-Recorder-and-Player">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="titanium-android-audio-recorder" class="anchor" href="#titanium-android-audio-recorder"><span class="octicon octicon-link"></span></a>Titanium-Android-Audio Recorder</h1>
+
+<p>Audio recorder and player for Titanium Android</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Please note that this Module is under development.</p>
+
+<h3>
+<a name="1-add-this-to-your-manifest" class="anchor" href="#1-add-this-to-your-manifest"><span class="octicon octicon-link"></span></a>1. Add this to your manifest:</h3>
+
+<ul>
+<li>Add this into Android Manifest.</li>
+</ul><pre>
+&amp;ltuses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
+&amp;ltuses-permission android:name="android.permission.RECORD_AUDIO" /&gt;
+</pre>
+
+<h3>
+<a name="2-now-add-module-to-your-project-using-steps-below" class="anchor" href="#2-now-add-module-to-your-project-using-steps-below"><span class="octicon octicon-link"></span></a>2. Now add Module to your project using steps below:</h3>
+
+<ul>
+<li>Include the Module in TiApp.xml and</li>
+</ul><pre>
+// open a single window
+var win = Ti.UI.createWindow({
+  backgroundColor:'white',
+  layout:'vertical'
+});
+var button1 = Ti.UI.createButton({
+    title:'Record'
+});
+win.add(button1);
+
+var button2 = Ti.UI.createButton({
+    title:'Play'
+});
+win.add(button1);
+
+win.open();
+
+var audiorecorder = require('in.shivakumars.audiorecorder');
+Ti.API.info("module is =&gt; " + audiorecorder);
+
+var path='';
+button1.addEventListener('click',function(e){
+    if(button1.title=='Record')
+    {
+        button1.title='Stop Recording';
+        audiorecorder.startRec('sample.mp4');
+    }
+    else
+    {
+        button1.title='Record';
+        path=audiorecorder.stopRec();
+    }
+});
+
+button2.addEventListener('click',function(e){
+    if(button1.title=='Play')
+    {
+        button1.title='Stop';
+        audiorecorder.startPlay(path);
+    }
+    else
+    {
+        button1.title='Play';
+        path=audiorecorder.stopPlay();
+    }
+});
+</pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/shivakumars">shivakumars</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
