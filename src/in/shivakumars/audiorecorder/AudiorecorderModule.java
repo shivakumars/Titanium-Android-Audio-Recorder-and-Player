@@ -18,6 +18,8 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Environment;
@@ -30,6 +32,9 @@ public class AudiorecorderModule extends KrollModule {
 	private static final boolean DBG = TiConfig.LOGD;
 	private MediaRecorder mRecorder = null;
 	private MediaPlayer mPlayer = null;
+	private String audioStoragePath;
+	private boolean recording = false;
+	private boolean playing = false;
 
 	// You can define constants with @Kroll.constant, for example:
 	// @Kroll.constant public static final String EXTERNAL_NAME = value;
@@ -45,57 +50,82 @@ public class AudiorecorderModule extends KrollModule {
 		// created
 	}
 
-	private void startPlaying(String fileName) {
-		mPlayer = new MediaPlayer();
-		try {
-			mPlayer.setDataSource(fileName);
-			mPlayer.prepare();
-			mPlayer.start();
-		} catch (IOException e) {
-			Log.e(LCAT, "prepare() failed");
-			Log.e(LCAT, e.toString());
+	private void startPlaying(String path) {
+		if (!playing) {
+			playing = true;
+			mPlayer = new MediaPlayer();
+			try {
+				mPlayer.setDataSource(path);
+				mPlayer.prepare();
+				mPlayer.start();
+			} catch (IOException e) {
+				Log.e(LCAT, "prepare() failed");
+				Log.e(LCAT, e.toString());
+			}
 		}
 	}
 
 	private void stopPlaying() {
-		mPlayer.release();
-		mPlayer = null;
+		if (playing) {
+			playing = false;
+			mPlayer.release();
+			mPlayer = null;
+		}
 	}
 
-	private void startRecording(String fileName) {
-		mRecorder = new MediaRecorder();
-		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		mRecorder.setOutputFile(Environment.getExternalStorageDirectory()
-				.getPath()
-				+ "/"
-				+ TiApplication.getAppCurrentActivity().getPackageName()
-				+ "/"
-				+ fileName + ".mp4");
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		try {
-			mRecorder.prepare();
-		} catch (IOException e) {
-			Log.e(LCAT, "prepare() failed");
-			Log.e(LCAT, e.toString());
-		}
+	private void startRecording(String fileName, boolean useSDCard) {
+		if (!recording) {
+			recording = true;
+			mRecorder = new MediaRecorder();
+			mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+			mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+			if (useSDCard) {
+				audioStoragePath = Environment.getExternalStorageDirectory()
+						.getPath()
+						+ "/"
+						+ TiApplication.getAppCurrentActivity()
+								.getPackageName() + "/" + fileName;
+			} else {
+				ContextWrapper cw = new ContextWrapper(
+						TiApplication.getAppRootOrCurrentActivity());
+				File directory = cw.getDir("audioDir", Context.MODE_PRIVATE);
+				audioStoragePath = new File(directory, fileName)
+						.getAbsolutePath();
+			}
 
-		mRecorder.start();
+			if (!audioStoragePath.contains("mp4"))
+				audioStoragePath += ".mp4";
+
+			mRecorder.setOutputFile(audioStoragePath);
+
+			mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+			try {
+				mRecorder.prepare();
+			} catch (IOException e) {
+				Log.e(LCAT, "prepare() failed");
+				Log.e(LCAT, e.toString());
+			}
+
+			mRecorder.start();
+		}
 	}
 
 	private void stopRecording() {
-		mRecorder.stop();
-		mRecorder.release();
-		mRecorder = null;
+		if (recording) {
+			recording = false;
+			mRecorder.stop();
+			mRecorder.release();
+			mRecorder = null;
+		}
 	}
 
 	String file;
 
 	// Methods
 	@Kroll.method
-	public void startRec(String fileName) {
+	public void startRec(String fileName, boolean canUseSDcard) {
 		Log.d(LCAT, "start Rec called");
-		startRecording(fileName);
+		startRecording(fileName, canUseSDcard);
 		file = fileName;
 	}
 
@@ -103,9 +133,7 @@ public class AudiorecorderModule extends KrollModule {
 	public String stopRec() {
 		Log.d(LCAT, "stop Rec called");
 		stopRecording();
-		return Environment.getExternalStorageDirectory().getPath() + "/"
-				+ TiApplication.getAppCurrentActivity().getPackageName() + "/"
-				+ file + ".mp4";
+		return audioStoragePath;
 	}
 
 	@Kroll.method

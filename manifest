@@ -2,11 +2,11 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 0.1
+version: 0.2
 apiversion: 2
-description: My module
-author: Your Name
-license: Specify your license
+description: A Module to record and play audio.
+author: Shivakumars.in
+license: Apache 2.0
 copyright: Copyright (c) 2012 by Your Company
 
 
