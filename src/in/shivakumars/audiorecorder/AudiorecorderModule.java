@@ -35,6 +35,7 @@ public class AudiorecorderModule extends KrollModule {
 	private String audioStoragePath;
 	private boolean recording = false;
 	private boolean playing = false;
+	private int type = 0;
 
 	// You can define constants with @Kroll.constant, for example:
 	// @Kroll.constant public static final String EXTERNAL_NAME = value;
@@ -50,7 +51,7 @@ public class AudiorecorderModule extends KrollModule {
 		// created
 	}
 
-	private void startPlaying(String path) {
+	private void playAudioFile(String path) {
 		if (!playing) {
 			playing = true;
 			mPlayer = new MediaPlayer();
@@ -73,12 +74,16 @@ public class AudiorecorderModule extends KrollModule {
 		}
 	}
 
-	private void startRecording(String fileName, boolean useSDCard) {
+	private void recordAudio(String fileName, boolean useSDCard) {
 		if (!recording) {
 			recording = true;
 			mRecorder = new MediaRecorder();
 			mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-			mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+			if (type == 0) {
+				mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+			} else if (type == 1) {
+				mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+			}
 			if (useSDCard) {
 				audioStoragePath = Environment.getExternalStorageDirectory()
 						.getPath()
@@ -110,7 +115,7 @@ public class AudiorecorderModule extends KrollModule {
 		}
 	}
 
-	private void stopRecording() {
+	private void stopRecordingAudio() {
 		if (recording) {
 			recording = false;
 			mRecorder.stop();
@@ -123,27 +128,28 @@ public class AudiorecorderModule extends KrollModule {
 
 	// Methods
 	@Kroll.method
-	public void startRec(String fileName, boolean canUseSDcard) {
+	public void startRecording(String fileName, boolean canUseSDcard, int type) {
 		Log.d(LCAT, "start Rec called");
-		startRecording(fileName, canUseSDcard);
+		this.type = type;
+		recordAudio(fileName, canUseSDcard);
 		file = fileName;
 	}
 
 	@Kroll.method
-	public String stopRec() {
+	public String stopRecording() {
 		Log.d(LCAT, "stop Rec called");
-		stopRecording();
+		stopRecordingAudio();
 		return audioStoragePath;
 	}
 
 	@Kroll.method
-	public void startPlay(String fileName) {
+	public void playAudio(String fileName) {
 		Log.d(LCAT, "start Play called");
-		startPlaying(fileName);
+		playAudioFile(fileName);
 	}
 
 	@Kroll.method
-	public void stopPlay() {
+	public void stopAudio() {
 		Log.d(LCAT, "stop Play called");
 		stopPlaying();
 	}
